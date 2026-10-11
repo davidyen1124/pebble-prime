@@ -1,0 +1,10 @@
+node_modules
+dist
+.vercel
+qa/ref
+qa/shots
+qa/bench
+qa/*.png
+qa/*.txt
+.DS_Store
+blender/__pycache__

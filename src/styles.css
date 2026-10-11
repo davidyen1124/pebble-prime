@@ -1,0 +1,637 @@
+/* One issue of a magazine, printed by a mid-90s games console. The type is type: vector, sharp at any
+   size. Everything else on the page is made of the console's own coarse pixels, the same size as the
+   3D picture's (--px): the paper and its frame (src/paper.js), the rules, the dots, the buttons with
+   their hard shadows. Positions and sizes that depend on the window are set from src/ui.js, which gets
+   them from layoutFor() in src/webgl/path.js; this file holds everything that does not. */
+:root {
+  --paper: #faf3e3;
+  --ink: #141414;
+  --red: #a5192e;
+  --grey: #857e72;
+  --rule: rgba(20, 20, 20, 0.3);
+  --latin: 'Jost Variable', Futura, 'Century Gothic', 'Trebuchet MS', sans-serif;
+  --type: 'Jost Variable', 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', Meiryo, sans-serif;
+  --f: 13px;
+  --u: 1;
+  --px: 2px;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  font-family: var(--type);
+  font-feature-settings: 'palt';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+::selection {
+  background: var(--red);
+  color: var(--paper);
+}
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── layers, back to front ─────────────────────────────────────────────── */
+#app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+}
+.boot {
+  z-index: 10;
+  margin: 0;
+  background: var(--paper);
+}
+.scroll-page {
+  position: absolute;
+  inset: 0;
+}
+/* (two classes, to outrank the scroll library's own `position: relative`) */
+.scroll-page .scroll-wrapper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.scroll-length {
+  width: 100%;
+}
+/* the scroll library's own track: the page has its dots, it needs no bar */
+.scrollbar-track {
+  display: none !important;
+}
+#paper {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+.masthead {
+  z-index: 1;
+}
+#canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  display: block;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+[data-ui] {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  outline: none;
+}
+[data-bullets] {
+  z-index: 6;
+}
+/* a cut from one page to a far one goes by in four steps, not a smooth fade */
+#canvas,
+[data-ui] {
+  transition: opacity 0.2s steps(4);
+}
+.is-jumping #canvas,
+.is-jumping [data-ui] {
+  opacity: 0;
+}
+
+/* ── masthead / logo ───────────────────────────────────────────────────── */
+.masthead {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  color: var(--red);
+  /* a hard shadow, no blur: the letters stand a little off the paper */
+  filter: drop-shadow(0.02em 0.02em 0 #5c0c1b);
+  font-family: var(--latin);
+  font-weight: 900;
+  line-height: 0.7;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  text-decoration: none;
+  transform-origin: 0 0;
+  will-change: transform;
+  user-select: none;
+}
+.masthead span {
+  display: block;
+  /* tight tracking pulls the box in; give the last letter its room back */
+  padding-right: 0.03em;
+}
+/* the two largest pieces of type are filled with the console's dithered red (set in src/ui.js),
+   clipped to the letters: sharp outlines, pixel ink */
+.masthead span,
+.cover-headline .ln > span {
+  background-color: var(--red);
+  background-repeat: repeat-x;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  image-rendering: pixelated;
+}
+
+/* ── cover ─────────────────────────────────────────────────────────────── */
+.cover {
+  position: absolute;
+  inset: 0;
+  color: var(--red);
+}
+.cover > * {
+  position: absolute;
+  margin: 0;
+}
+.cover-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.is-narrow .cover-strip {
+  flex-direction: column;
+  gap: 0;
+}
+.cover-no {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75em;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.cover-no .n i {
+  font-style: normal;
+  font-weight: 800;
+  font-size: 1.05em;
+}
+.cover-no .n b {
+  font-family: var(--latin);
+  font-weight: 800;
+  font-size: 2.1em;
+  letter-spacing: -0.01em;
+  margin-left: 0.06em;
+}
+.is-narrow .cover-no .n b {
+  font-size: 1.5em;
+}
+.cover-no .fan {
+  margin-left: auto;
+  font-family: var(--latin);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+}
+.is-wide .cover-no .fan {
+  display: none;
+}
+.cover-headline {
+  filter: drop-shadow(0.024em 0.024em 0 #5c0c1b);
+  font-family: var(--latin);
+  font-weight: 700;
+  line-height: 0.86;
+  letter-spacing: -0.012em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.cover-headline .ln {
+  display: block;
+  width: max-content;
+  overflow: hidden;
+  /* room for the tops of the capitals and the tail of the Q, which the tight line height would clip */
+  padding: 0.06em 0 0.1em;
+  margin: -0.06em 0 -0.1em;
+}
+.cover-headline .ln > span {
+  display: block;
+}
+.cover-sub {
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.cover-foot {
+  font-family: var(--latin);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.cover-side {
+  writing-mode: vertical-rl;
+  font-size: 9.5px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.is-narrow .cover-side {
+  display: none;
+}
+.cover-labels {
+  inset: 0;
+  list-style: none;
+  padding: 0;
+  color: var(--ink);
+}
+.cover-labels li {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12em;
+  width: max-content;
+  line-height: 1.16;
+  white-space: nowrap;
+  transform: translateY(-50%);
+}
+.cover-labels li.right {
+  align-items: flex-start;
+}
+.cover-labels li.left {
+  align-items: flex-end;
+  transform: translate(-100%, -50%);
+}
+.cover-labels.one-line li {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0.6em;
+}
+.cover-labels .jp {
+  font-weight: 700;
+  font-size: 1em;
+  letter-spacing: 0.08em;
+}
+.cover-labels .en {
+  font-family: var(--latin);
+  font-weight: 500;
+  font-size: 0.94em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.start {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9em;
+  padding: 0.85em 1em 0.85em 1.25em;
+  border: var(--px) solid var(--red);
+  border-radius: 0;
+  background: var(--paper);
+  box-shadow: calc(var(--px) * 2) calc(var(--px) * 2) 0 var(--red);
+  color: var(--red);
+  font-family: var(--latin);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.start svg {
+  width: 1.15em;
+  height: 0.9em;
+  transform: rotate(90deg);
+  /* it nods, two frames a second, the way a prompt does on a title screen (and is never gone) */
+  animation: nod 1s steps(1) infinite;
+}
+.is-narrow .start {
+  padding: 0;
+  font-size: 15px;
+}
+.is-narrow .start span {
+  display: none;
+}
+@keyframes nod {
+  50% {
+    translate: 0 calc(var(--px) * 2);
+  }
+}
+@media (hover: hover) {
+  .start:hover,
+  .pill:hover {
+    box-shadow: none;
+    transform: translate(calc(var(--px) * 2), calc(var(--px) * 2));
+  }
+}
+
+/* ── an item's page, and the back cover ────────────────────────────────── */
+.caption {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  visibility: hidden;
+  font-size: calc(var(--base, 17px) * var(--k, 1));
+}
+.caption.centre {
+  justify-content: center;
+}
+.cap-in {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: none;
+}
+.caption > .cap-in > * {
+  margin: 0;
+}
+.cap-no {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  gap: 0.9em;
+  font-family: var(--type);
+  font-size: 0.74em;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.cap-no .no b {
+  font-size: 1.5em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin: 0 0.12em 0 0.1em;
+}
+.cap-no .no i {
+  font-style: normal;
+  color: var(--grey);
+}
+.cap-no .rule {
+  flex: 1;
+  min-width: 1em;
+  height: var(--px);
+  background: var(--ink);
+  transform-origin: 0 50%;
+}
+.cap-no .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+}
+.cap-no .tag::before {
+  content: '';
+  width: calc(var(--px) * 3);
+  height: calc(var(--px) * 3);
+  background: var(--red);
+}
+.cap-no .tag em {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--grey);
+}
+.tight .cap-no .tag em {
+  display: none;
+}
+.cap-jp {
+  margin-top: 1.5em !important;
+  font-size: 0.92em;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.16em;
+  color: var(--red);
+}
+.cap-title {
+  margin-top: 0.1em !important;
+  font-family: var(--latin);
+  font-size: calc(var(--title, 4.2) * var(--tk, 1) * 1em);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+.cap-title .w {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  white-space: nowrap;
+  padding: 0.05em 0 0.1em;
+  margin: 0 0.24em -0.1em 0;
+}
+.cap-title .w.glue {
+  margin-right: 0;
+}
+.cap-title .w > span {
+  display: block;
+}
+.cap-text {
+  margin-top: 1.05em !important;
+  max-width: 31em;
+  font-size: 1em;
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: 0.005em;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9em;
+  margin-top: 1.5em !important;
+  padding: 0.8em 1.1em 0.8em 1.3em;
+  border: var(--px) solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  box-shadow: calc(var(--px) * 2) calc(var(--px) * 2) 0 var(--ink);
+  color: var(--ink);
+  font-family: var(--latin);
+  font-size: 0.8em;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.pill svg {
+  width: 1.3em;
+  height: 1em;
+}
+.pill.solid {
+  background: var(--red);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+.pill.up svg {
+  transform: rotate(-90deg);
+}
+.outro .cap-title {
+  --title: 3.5;
+  margin-top: 0.36em !important;
+}
+.outro .cap-jp {
+  margin-top: 0.9em !important;
+  font-size: 1.12em;
+  letter-spacing: 0.08em;
+}
+.outro .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7em;
+  margin-top: 1.5em !important;
+}
+.outro .actions .pill {
+  margin-top: 0 !important;
+}
+.outro .note {
+  margin-top: 1.5em !important;
+  font-size: 0.78em;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  color: var(--grey);
+}
+.is-narrow .cap-jp {
+  margin-top: 0.85em !important;
+}
+.is-narrow .cap-title {
+  --title: 2.5;
+}
+.is-narrow .caption:not(.outro) .cap-title {
+  white-space: nowrap;
+}
+.is-narrow .caption:not(.outro) .cap-title .w:last-child {
+  margin-right: 0;
+}
+.is-narrow .outro .cap-title {
+  --title: 2.1;
+}
+.is-narrow .cap-text {
+  margin-top: 0.7em !important;
+  line-height: 1.48;
+}
+.is-narrow .pill,
+.is-narrow .outro .actions,
+.is-narrow .outro .note {
+  margin-top: 0.95em !important;
+}
+.is-narrow .outro .actions .pill {
+  margin-top: 0 !important;
+}
+
+/* ── running foot ──────────────────────────────────────────────────────── */
+.folio {
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  font-family: var(--type);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--red);
+}
+.folio span:last-child {
+  color: var(--grey);
+}
+.is-narrow .folio {
+  display: none;
+}
+
+/* ── the dots, centre right ────────────────────────────────────────────── */
+.bullets {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  transform: translate(-50%, -50%);
+}
+.bullet {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.is-narrow .bullet {
+  width: 16px;
+}
+.bullet i {
+  width: calc(var(--px) * 2);
+  height: calc(var(--px) * 2);
+  background: var(--ink);
+  opacity: 0.32;
+}
+.bullet.is-active i {
+  background: var(--red);
+  opacity: 1;
+  transform: scale(2);
+}
+.bullet .tip {
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  margin-right: 6px;
+  padding: 6px 10px 6px 11px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--type);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(5px, -50%);
+  pointer-events: none;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+@media (hover: hover) {
+  .bullet:hover i {
+    opacity: 1;
+  }
+  .bullet:hover .tip,
+  .bullet:focus-visible .tip {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .start svg {
+    animation: none;
+  }
+}

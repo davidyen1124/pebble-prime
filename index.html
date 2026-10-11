@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,shrink-to-fit=no,viewport-fit=cover" />
+    <title>PEBBLE: Well-Equipped. The Turnstone stylebook</title>
+    <meta name="description" content="A stylebook of the sixteen things a Turnstone Pebble carries, and what each one stands for. Scroll to take them off one by one. Fan-made, not affiliated with Turnstone." />
+    <meta name="theme-color" content="#faf3e3" />
+    <meta property="og:title" content="PEBBLE: Well-Equipped" />
+    <meta property="og:description" content="A stylebook of the sixteen things a Turnstone Pebble carries. A fan-made page." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://pebble-prime.vercel.app/" />
+    <meta property="og:image" content="https://pebble-prime.vercel.app/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://pebble-prime.vercel.app/og.jpg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preload" href="/models/pebble.glb" as="fetch" crossorigin />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #faf3e3;
+        color: #141414;
+      }
+      /* the first paint: paper, the frame, and a small line of type that counts */
+      .boot {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font: 600 13px/1 Futura, 'Century Gothic', 'Trebuchet MS', sans-serif;
+        letter-spacing: 0.14em;
+        color: #a5192e;
+      }
+      .boot::before {
+        content: '';
+        position: absolute;
+        inset: 13px;
+        border: 6px solid #a5192e;
+      }
+      /* nothing of the page shows until it is laid out */
+      #app {
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <p class="boot" data-boot>NOW PRINTING&ensp;<span data-boot-count>0</span></p>
+    <div id="app">
+      <div class="scroll-page">
+        <div class="scroll-wrapper"><div class="scroll-length"></div></div>
+      </div>
+      <!-- the paper and its red frame: a still picture in the same coarse pixels as the 3D -->
+      <canvas id="paper" aria-hidden="true"></canvas>
+      <!-- the masthead sits behind the Pebble, the way a magazine's does; once the cover is left it is the small logo top left -->
+      <a class="masthead" href="/" data-masthead aria-label="Pebble: back to the cover"><span>PEBBLE</span></a>
+      <canvas id="canvas" aria-hidden="true"></canvas>
+      <main data-ui tabindex="-1"></main>
+      <nav class="bullets" data-bullets aria-label="Pages of this issue"></nav>
+      <div class="visually-hidden" aria-live="polite" data-live></div>
+    </div>
+    <noscript><p style="position: fixed; inset: 0; display: grid; place-items: center; font: 18px sans-serif; padding: 2em; text-align: center; background: #faf3e3">This page is an interactive 3D stylebook and needs JavaScript.</p></noscript>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
