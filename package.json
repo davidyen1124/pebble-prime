@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "textures": "node scripts/textures.mjs",
-    "model": "node scripts/textures.mjs && /Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup --python blender/build_pebble.py -- public/models/pebble.glb",
+    "model": "node scripts/textures.mjs && /Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup --python assets-src/blender/build_pebble.py -- public/models/pebble.glb",
     "fonts": "node scripts/fonts.mjs",
     "meta": "node scripts/meta.mjs",
     "bench": "node scripts/bench.mjs sections desktop",

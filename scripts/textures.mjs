@@ -1,13 +1,13 @@
-// Pixel textures for the Pebble model, drawn here pixel by pixel and saved into blender/tex/.
+// Pixel textures for the Pebble model, drawn here pixel by pixel and saved into assets-src/blender/tex/.
 // Two kinds: small repeating "cloth" tiles (grey detail that the model's vertex colours tint), and one
-// atlas of labels (everything with lettering). blender/build_pebble.py reads atlas.json to place them.
+// atlas of labels (everything with lettering). assets-src/blender/build_pebble.py reads atlas.json to place them.
 // usage: node scripts/textures.mjs
 import sharp from 'sharp'
 import fs from 'node:fs'
 import path from 'node:path'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
-const OUT = path.join(ROOT, 'blender/tex')
+const OUT = path.join(ROOT, 'assets-src/blender/tex')
 fs.mkdirSync(OUT, { recursive: true })
 
 function rng(seed) {

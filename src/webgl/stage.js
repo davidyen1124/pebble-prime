@@ -65,7 +65,9 @@ const smooth = (a, b, x) => {
 }
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
 
-export async function createStage(canvas, { onProgress = () => {}, model = '/models/pebble.glb' } = {}) {
+// BASE_URL is './' in the build and '/' in dev, so the model is found wherever the page is served from
+// (the same address index.html preloads)
+export async function createStage(canvas, { onProgress = () => {}, model = import.meta.env.BASE_URL + 'models/pebble.glb' } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, premultipliedAlpha: true, powerPreference: 'high-performance', stencil: false })
   renderer.setClearColor(0x000000, 0)
   renderer.autoClear = false

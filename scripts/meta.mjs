@@ -62,13 +62,14 @@ fs.writeFileSync(
       name: 'PEBBLE: Well-Equipped',
       short_name: 'Pebble',
       description: 'A stylebook of the sixteen things a Turnstone Pebble carries. A fan-made page.',
-      start_url: '/',
+      // relative to the manifest itself, so they hold under a sub-path such as /pebble-prime/
+      start_url: '.',
       display: 'browser',
       background_color: PAPER,
       theme_color: PAPER,
       icons: [
-        { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-        { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+        { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+        { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
       ],
     },
     null,

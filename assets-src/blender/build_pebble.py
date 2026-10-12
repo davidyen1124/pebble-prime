@@ -1,7 +1,7 @@
 # Builds the Pebble and its sixteen accessories as low-poly meshes and writes public/models/pebble.glb.
 #
 #   /Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup \
-#       --python blender/build_pebble.py -- public/models/pebble.glb
+#       --python assets-src/blender/build_pebble.py -- public/models/pebble.glb
 #
 # The look is an old 3D adventure game: few polygons, small pixel textures, lighting baked into the
 # vertices. Every accessory is its own object with its own pivot, so the page can lift it off the
@@ -23,7 +23,7 @@ from mathutils.bvhtree import BVHTree  # noqa: E402
 TEX = os.path.join(HERE, 'tex')
 ATLAS = json.load(open(os.path.join(TEX, 'atlas.json')))
 argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
-OUT = os.path.abspath(argv[0] if argv else os.path.join(HERE, '..', 'public', 'models', 'pebble.glb'))
+OUT = os.path.abspath(argv[0] if argv else os.path.join(HERE, '..', '..', 'public', 'models', 'pebble.glb'))
 
 SKIN = 0x5d92e6
 NAVY = 0x1c2a4f

@@ -1,10 +1,7 @@
 node_modules
 dist
 .vercel
-qa/ref
-qa/shots
-qa/bench
-qa/*.png
-qa/*.txt
+# everything the QA scripts write: photographs, reports, reference captures (the sheets worth keeping are in docs/qa)
+/qa/
 .DS_Store
-blender/__pycache__
+assets-src/blender/__pycache__
